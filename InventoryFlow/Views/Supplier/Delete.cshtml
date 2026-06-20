@@ -1,0 +1,11 @@
+@model Supplier
+@{ ViewData["Title"] = "Delete Supplier"; }
+
+<div class="inv-card p-4 inv-form-card">
+    <h5 class="section-title text-danger">Delete Supplier</h5>
+    <p>Are you sure you want to delete <strong>@Model.Name</strong>?</p>
+    <form asp-action="Delete" asp-route-id="@Model.SupplierId" method="post">
+        <button type="submit" class="btn btn-danger">Yes, Delete</button>
+        <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
+    </form>
+</div>

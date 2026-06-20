@@ -1,0 +1,155 @@
+@model DashboardViewModel
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="inv-stat-card">
+            <div class="stat-label">Total Stock Value</div>
+            <div class="stat-value">₹@Model.TotalStockValue.ToString("N0")</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="inv-stat-card">
+            <div class="stat-label">Active Products</div>
+            <div class="stat-value">@Model.TotalProducts</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="inv-stat-card is-warning">
+            <div class="stat-label">Low Stock Items</div>
+            <div class="stat-value text-warning-emphasis">@Model.LowStockCount</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="inv-stat-card">
+            <div class="stat-label">Active Suppliers</div>
+            <div class="stat-value">@Model.TotalSuppliers</div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-lg-7">
+        <div class="inv-card p-3 h-100">
+            <h6 class="section-title">Stock Value by Category</h6>
+            <canvas id="categoryChart" height="180"></canvas>
+        </div>
+    </div>
+    <div class="col-lg-5">
+        <div class="inv-card p-3 h-100">
+            <h6 class="section-title">Top Moving Products <span class="text-inv-muted fw-normal" style="font-size:0.75rem;">(last 30 days)</span></h6>
+            <canvas id="topMovingChart" height="180"></canvas>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-lg-6">
+        <div class="inv-card p-3">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <h6 class="section-title mb-0"><i class="bi bi-exclamation-triangle text-warning"></i> Low-Stock Alerts</h6>
+                <a asp-controller="Product" asp-action="Index" asp-route-lowStockOnly="true" class="small">View all &rarr;</a>
+            </div>
+            @if (!Model.LowStockProducts.Any())
+            {
+                <p class="text-inv-muted mb-0">Nothing below reorder threshold right now. 🎉</p>
+            }
+            else
+            {
+                <table class="table table-inv table-sm align-middle mb-0">
+                    <thead><tr><th>Product</th><th>Stock</th><th>Threshold</th><th></th></tr></thead>
+                    <tbody>
+                    @foreach (var p in Model.LowStockProducts.Take(8))
+                    {
+                        <tr>
+                            <td>@p.Name <div class="text-inv-muted" style="font-size:0.75rem;">@p.SKU</div></td>
+                            <td><span class="badge @(p.CurrentStock == 0 ? "badge-inv-out" : "badge-inv-low")">@p.CurrentStock @p.UnitOfMeasure</span></td>
+                            <td>@p.ReorderThreshold</td>
+                            <td><a asp-controller="Stock" asp-action="In" asp-route-productId="@p.ProductId" class="btn btn-sm btn-inv-accent">Reorder Now</a></td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            }
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="inv-card p-3">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <h6 class="section-title mb-0"><i class="bi bi-clock-history"></i> Recent Stock Movements</h6>
+            </div>
+            @if (!Model.RecentTransactions.Any())
+            {
+                <p class="text-inv-muted mb-0">No movements recorded yet.</p>
+            }
+            else
+            {
+                <table class="table table-inv table-sm align-middle mb-0">
+                    <thead><tr><th>Date</th><th>Product</th><th>Type</th><th>Qty</th></tr></thead>
+                    <tbody>
+                    @foreach (var t in Model.RecentTransactions)
+                    {
+                        <tr>
+                            <td>@t.TransactionDate.ToString("dd MMM")</td>
+                            <td>@(t.Product?.Name ?? "—")</td>
+                            <td>
+                                @if (t.TransactionType == TransactionType.StockIn)
+                                {
+                                    <span class="badge badge-inv-in">In</span>
+                                }
+                                else
+                                {
+                                    <span class="badge badge-inv-low">Out</span>
+                                }
+                            </td>
+                            <td>@t.Quantity</td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+    <script>
+        const categoryLabels = @Html.Raw(Json.Serialize(Model.CategoryLabels));
+        const categoryValues = @Html.Raw(Json.Serialize(Model.CategoryStockValues));
+        const topMovingLabels = @Html.Raw(Json.Serialize(Model.TopMovingProductNames));
+        const topMovingValues = @Html.Raw(Json.Serialize(Model.TopMovingProductQuantities));
+
+        new Chart(document.getElementById('categoryChart'), {
+            type: 'doughnut',
+            data: {
+                labels: categoryLabels,
+                datasets: [{
+                    data: categoryValues,
+                    backgroundColor: ['#0f766e', '#14b8a6', '#5eead4', '#f59e0b', '#fbbf24', '#94a3b8']
+                }]
+            },
+            options: { plugins: { legend: { position: 'right' } }, maintainAspectRatio: true }
+        });
+
+        new Chart(document.getElementById('topMovingChart'), {
+            type: 'bar',
+            data: {
+                labels: topMovingLabels,
+                datasets: [{
+                    label: 'Units moved',
+                    data: topMovingValues,
+                    backgroundColor: '#0f766e',
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                plugins: { legend: { display: false } },
+                scales: { x: { beginAtZero: true } }
+            }
+        });
+    </script>
+}

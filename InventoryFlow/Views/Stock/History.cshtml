@@ -1,0 +1,56 @@
+@model IEnumerable<StockTransaction>
+@{
+    ViewData["Title"] = "Movement History";
+    var product = ViewBag.Product as Product;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h5 class="mb-0">Movement History — @product?.Name</h5>
+        <div class="text-inv-muted small">@product?.SKU &middot; Current balance: <strong>@product?.CurrentStock @product?.UnitOfMeasure</strong></div>
+    </div>
+    <div class="btn-group btn-group-sm">
+        <a asp-action="In" asp-route-productId="@product?.ProductId" class="btn btn-inv-primary">Stock In</a>
+        <a asp-action="Out" asp-route-productId="@product?.ProductId" class="btn btn-outline-inv">Stock Out</a>
+    </div>
+</div>
+
+<div class="inv-card p-0">
+    <table class="table table-inv mb-0 align-middle">
+        <thead>
+            <tr>
+                <th>Date</th><th>Type</th><th>Quantity</th><th>Unit Cost</th><th>Supplier</th><th>Reason</th><th>Balance After</th><th>Notes</th>
+            </tr>
+        </thead>
+        <tbody>
+        @foreach (var t in Model)
+        {
+            <tr>
+                <td>@t.TransactionDate.ToString("dd MMM yyyy")</td>
+                <td>
+                    @if (t.TransactionType == TransactionType.StockIn)
+                    {
+                        <span class="badge badge-inv-in"><i class="bi bi-arrow-down-short"></i> Stock In</span>
+                    }
+                    else
+                    {
+                        <span class="badge badge-inv-low"><i class="bi bi-arrow-up-short"></i> Stock Out</span>
+                    }
+                </td>
+                <td class="fw-semibold">
+                    @(t.TransactionType == TransactionType.StockIn ? "+" : "-")@t.Quantity
+                </td>
+                <td>@(t.UnitCost.HasValue ? "₹" + t.UnitCost.Value.ToString("N2") : "—")</td>
+                <td>@(t.Supplier?.Name ?? "—")</td>
+                <td>@(t.Reason?.ToString() ?? "—")</td>
+                <td>@t.BalanceAfterTransaction @product?.UnitOfMeasure</td>
+                <td class="text-inv-muted">@t.Notes</td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</div>
+@if (!Model.Any())
+{
+    <p class="text-inv-muted mt-3">No movements recorded for this product yet.</p>
+}

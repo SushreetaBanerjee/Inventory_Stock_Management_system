@@ -1,0 +1,64 @@
+@model StockOutViewModel
+@{ ViewData["Title"] = "Stock Out"; }
+
+<div class="inv-card p-4 inv-form-card">
+    <h5 class="section-title"><i class="bi bi-box-arrow-up text-warning"></i> Record Stock Out (Sale / Issue Entry)</h5>
+    <p class="text-inv-muted">Outgoing stock for a sale, damage, or internal use. This decreases the product's stock level and can never exceed what's on hand.</p>
+
+    <form asp-action="Out" method="post">
+        <div asp-validation-summary="ModelOnly" class="text-danger mb-2"></div>
+        <div class="row g-3">
+            <div class="col-md-8">
+                <label class="form-label">Product</label>
+                <select name="ProductId" id="productSelect" class="form-select" required>
+                    <option value="">-- select product --</option>
+                    @foreach (var p in Model.Products)
+                    {
+                        <option value="@p.ProductId" data-stock="@p.CurrentStock" data-unit="@p.UnitOfMeasure" selected="@(p.ProductId == Model.ProductId)">@p.Name (@p.SKU)</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Available Stock</label>
+                <input id="availableStock" class="form-control" value="@Model.AvailableStock" disabled />
+            </div>
+            <div class="col-md-4">
+                <label asp-for="Quantity" class="form-label"></label>
+                <input asp-for="Quantity" class="form-control" min="1" />
+                <span asp-validation-for="Quantity" class="text-danger small"></span>
+            </div>
+            <div class="col-md-4">
+                <label asp-for="Reason" class="form-label"></label>
+                <select asp-for="Reason" class="form-select" asp-items="Html.GetEnumSelectList<StockOutReason>()">
+                    <option value="">-- select reason --</option>
+                </select>
+                <span asp-validation-for="Reason" class="text-danger small"></span>
+            </div>
+            <div class="col-md-4">
+                <label asp-for="TransactionDate" class="form-label"></label>
+                <input asp-for="TransactionDate" type="date" class="form-control" />
+                <span asp-validation-for="TransactionDate" class="text-danger small"></span>
+            </div>
+            <div class="col-md-12">
+                <label asp-for="Notes" class="form-label"></label>
+                <textarea asp-for="Notes" class="form-control" rows="2" placeholder="Optional notes"></textarea>
+            </div>
+        </div>
+        <div class="mt-4 d-flex gap-2">
+            <button type="submit" class="btn btn-inv-accent"><i class="bi bi-box-arrow-up"></i> Record Stock Out</button>
+            <a asp-controller="Product" asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+    <script>
+        document.getElementById('productSelect').addEventListener('change', function () {
+            const opt = this.options[this.selectedIndex];
+            const stock = opt.getAttribute('data-stock') || 0;
+            const unit = opt.getAttribute('data-unit') || '';
+            document.getElementById('availableStock').value = opt.value ? (stock + ' ' + unit) : '';
+        });
+    </script>
+}

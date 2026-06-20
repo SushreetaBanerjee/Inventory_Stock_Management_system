@@ -1,0 +1,88 @@
+@model List<Product>
+@{
+    ViewData["Title"] = "Products";
+    var categories = ViewBag.Categories as IEnumerable<Category>;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <form class="d-flex gap-2" method="get">
+        <input type="text" name="search" value="@ViewBag.Search" class="form-control form-control-sm" placeholder="Search name or SKU..." style="width:220px;" />
+        <select name="categoryId" class="form-select form-select-sm" style="width:170px;">
+            <option value="">All Categories</option>
+            @foreach (var c in categories ?? Enumerable.Empty<Category>())
+            {
+                <option value="@c.CategoryId" selected="@(ViewBag.CategoryId == c.CategoryId)">@c.Name</option>
+            }
+        </select>
+        <div class="form-check d-flex align-items-center">
+            <input class="form-check-input me-1" type="checkbox" name="lowStockOnly" value="true" id="lowStockOnly" checked="@((bool)ViewBag.LowStockOnly)" />
+            <label class="form-check-label small" for="lowStockOnly">Low stock only</label>
+        </div>
+        <button type="submit" class="btn btn-sm btn-outline-inv">Filter</button>
+    </form>
+    <a asp-action="Create" class="btn btn-inv-primary"><i class="bi bi-plus-lg"></i> Add Product</a>
+</div>
+
+<div class="inv-card p-0">
+    <table class="table table-inv mb-0 align-middle">
+        <thead>
+            <tr>
+                <th>Product</th>
+                <th>Category</th>
+                <th>Stock Level</th>
+                <th>Status</th>
+                <th>Selling Price</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+        @foreach (var p in Model)
+        {
+            var pct = p.ReorderThreshold > 0 ? Math.Min(100, (int)((double)p.CurrentStock / (p.ReorderThreshold * 3) * 100)) : (p.CurrentStock > 0 ? 100 : 0);
+            var barClass = p.CurrentStock == 0 ? "is-out" : (p.IsLowStock ? "is-low" : "");
+            <tr>
+                <td>
+                    <a asp-action="Details" asp-route-id="@p.ProductId" class="fw-semibold text-decoration-none">@p.Name</a>
+                    <div class="text-inv-muted" style="font-size:0.78rem;">@p.SKU</div>
+                </td>
+                <td>@(p.Category?.Name ?? "—")</td>
+                <td style="min-width:160px;">
+                    <div class="d-flex justify-content-between" style="font-size:0.78rem;">
+                        <span>@p.CurrentStock @p.UnitOfMeasure</span>
+                        <span class="text-inv-muted">min @p.ReorderThreshold</span>
+                    </div>
+                    <div class="stock-bar-track mt-1">
+                        <div class="stock-bar-fill @barClass" style="width:@(pct)%;"></div>
+                    </div>
+                </td>
+                <td>
+                    @if (p.CurrentStock == 0)
+                    {
+                        <span class="badge badge-inv-out">Out of Stock</span>
+                    }
+                    else if (p.IsLowStock)
+                    {
+                        <span class="badge badge-inv-low">Low Stock</span>
+                    }
+                    else
+                    {
+                        <span class="badge badge-inv-ok">In Stock</span>
+                    }
+                </td>
+                <td>₹@p.SellingPrice.ToString("N2")</td>
+                <td class="text-end">
+                    <div class="btn-group btn-group-sm">
+                        <a asp-controller="Stock" asp-action="In" asp-route-productId="@p.ProductId" class="btn btn-outline-inv" title="Stock In"><i class="bi bi-box-arrow-in-down"></i></a>
+                        <a asp-controller="Stock" asp-action="Out" asp-route-productId="@p.ProductId" class="btn btn-outline-inv" title="Stock Out"><i class="bi bi-box-arrow-up"></i></a>
+                        <a asp-action="Edit" asp-route-id="@p.ProductId" class="btn btn-outline-inv" title="Edit"><i class="bi bi-pencil"></i></a>
+                    </div>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</div>
+@if (!Model.Any())
+{
+    <p class="text-inv-muted mt-3">No products match your filters.</p>
+}

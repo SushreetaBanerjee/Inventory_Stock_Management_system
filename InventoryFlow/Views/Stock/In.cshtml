@@ -1,0 +1,60 @@
+@model StockInViewModel
+@{ ViewData["Title"] = "Stock In"; }
+
+<div class="inv-card p-4 inv-form-card">
+    <h5 class="section-title"><i class="bi bi-box-arrow-in-down text-success"></i> Record Stock In (Purchase Entry)</h5>
+    <p class="text-inv-muted">Incoming stock from a supplier. This increases the product's stock level automatically.</p>
+
+    <form asp-action="In" method="post">
+        <div asp-validation-summary="ModelOnly" class="text-danger mb-2"></div>
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label class="form-label">Product</label>
+                <select name="ProductId" class="form-select" required>
+                    <option value="">-- select product --</option>
+                    @foreach (var p in Model.Products)
+                    {
+                        <option value="@p.ProductId" selected="@(p.ProductId == Model.ProductId)">@p.Name (@p.SKU) — currently @p.CurrentStock @p.UnitOfMeasure</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="SupplierId" class="form-label"></label>
+                <select asp-for="SupplierId" class="form-select" asp-items="@(new SelectList(Model.Suppliers, "SupplierId", "Name"))">
+                    <option value="">-- select supplier --</option>
+                </select>
+                <span asp-validation-for="SupplierId" class="text-danger small"></span>
+            </div>
+            <div class="col-md-4">
+                <label asp-for="Quantity" class="form-label"></label>
+                <input asp-for="Quantity" class="form-control" min="1" />
+                <span asp-validation-for="Quantity" class="text-danger small"></span>
+            </div>
+            <div class="col-md-4">
+                <label asp-for="UnitCost" class="form-label"></label>
+                <div class="input-group">
+                    <span class="input-group-text">₹</span>
+                    <input asp-for="UnitCost" class="form-control" step="0.01" />
+                </div>
+                <span asp-validation-for="UnitCost" class="text-danger small"></span>
+            </div>
+            <div class="col-md-4">
+                <label asp-for="TransactionDate" class="form-label"></label>
+                <input asp-for="TransactionDate" type="date" class="form-control" />
+                <span asp-validation-for="TransactionDate" class="text-danger small"></span>
+            </div>
+            <div class="col-md-12">
+                <label asp-for="Notes" class="form-label"></label>
+                <textarea asp-for="Notes" class="form-control" rows="2" placeholder="Optional notes, e.g. PO number"></textarea>
+            </div>
+        </div>
+        <div class="mt-4 d-flex gap-2">
+            <button type="submit" class="btn btn-inv-primary"><i class="bi bi-box-arrow-in-down"></i> Record Stock In</button>
+            <a asp-controller="Product" asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+}

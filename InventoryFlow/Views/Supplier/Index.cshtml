@@ -1,0 +1,49 @@
+@model IEnumerable<Supplier>
+@{ ViewData["Title"] = "Suppliers"; }
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h5 class="mb-0">All Suppliers</h5>
+    <a asp-action="Create" class="btn btn-inv-primary"><i class="bi bi-plus-lg"></i> Add Supplier</a>
+</div>
+
+<div class="inv-card p-0">
+    <table class="table table-inv mb-0 align-middle">
+        <thead>
+            <tr>
+                <th>Name</th><th>Contact Person</th><th>Phone</th><th>Email</th><th>Supplies</th><th>Status</th><th></th>
+            </tr>
+        </thead>
+        <tbody>
+        @foreach (var s in Model)
+        {
+            <tr>
+                <td><a asp-action="Details" asp-route-id="@s.SupplierId" class="fw-semibold text-decoration-none">@s.Name</a></td>
+                <td>@s.ContactPerson</td>
+                <td>@s.Phone</td>
+                <td>@s.Email</td>
+                <td>@s.ProductsSupplied</td>
+                <td>
+                    @if (s.IsActive)
+                    {
+                        <span class="badge badge-inv-ok">Active</span>
+                    }
+                    else
+                    {
+                        <span class="badge badge-inv-out">Inactive</span>
+                    }
+                </td>
+                <td class="text-end">
+                    <div class="btn-group btn-group-sm">
+                        <a asp-action="Edit" asp-route-id="@s.SupplierId" class="btn btn-outline-inv"><i class="bi bi-pencil"></i></a>
+                        <a asp-action="Delete" asp-route-id="@s.SupplierId" class="btn btn-outline-danger"><i class="bi bi-trash"></i></a>
+                    </div>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</div>
+@if (!Model.Any())
+{
+    <p class="text-inv-muted mt-3">No suppliers yet.</p>
+}

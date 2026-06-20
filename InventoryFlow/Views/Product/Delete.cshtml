@@ -1,0 +1,15 @@
+@model Product
+@{ ViewData["Title"] = "Delete Product"; }
+
+<div class="inv-card p-4 inv-form-card">
+    <h5 class="section-title text-danger">Delete Product</h5>
+    <p>Are you sure you want to delete <strong>@Model.Name</strong> (@Model.SKU)?</p>
+    @if (Model.CurrentStock > 0)
+    {
+        <div class="alert alert-warning">This product currently has @Model.CurrentStock @Model.UnitOfMeasure in stock.</div>
+    }
+    <form asp-action="Delete" asp-route-id="@Model.ProductId" method="post">
+        <button type="submit" class="btn btn-danger">Yes, Delete</button>
+        <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
+    </form>
+</div>

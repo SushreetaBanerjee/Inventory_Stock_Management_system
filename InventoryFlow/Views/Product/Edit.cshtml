@@ -1,0 +1,84 @@
+@model ProductFormViewModel
+@{ ViewData["Title"] = "Edit Product"; }
+
+<div class="inv-card p-4 inv-form-card">
+    <h5 class="section-title">Edit Product</h5>
+    <form asp-action="Edit" asp-route-id="@Model.Product.ProductId" method="post">
+        <input type="hidden" asp-for="Product.ProductId" />
+        <div asp-validation-summary="ModelOnly" class="text-danger mb-2"></div>
+
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label asp-for="Product.SKU" class="form-label"></label>
+                <input asp-for="Product.SKU" class="form-control" />
+                <span asp-validation-for="Product.SKU" class="text-danger small"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="Product.Name" class="form-label"></label>
+                <input asp-for="Product.Name" class="form-control" />
+                <span asp-validation-for="Product.Name" class="text-danger small"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="Product.CategoryId" class="form-label"></label>
+                <select asp-for="Product.CategoryId" class="form-select" asp-items="@(new SelectList(Model.Categories, "CategoryId", "Name"))"></select>
+                <span asp-validation-for="Product.CategoryId" class="text-danger small"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="Product.SupplierId" class="form-label"></label>
+                <select asp-for="Product.SupplierId" class="form-select" asp-items="@(new SelectList(Model.Suppliers, "SupplierId", "Name"))">
+                    <option value="">-- none --</option>
+                </select>
+            </div>
+
+            <div class="col-md-4">
+                <label asp-for="Product.UnitOfMeasure" class="form-label"></label>
+                <input asp-for="Product.UnitOfMeasure" class="form-control" />
+                <span asp-validation-for="Product.UnitOfMeasure" class="text-danger small"></span>
+            </div>
+            <div class="col-md-4">
+                <label asp-for="Product.ReorderThreshold" class="form-label"></label>
+                <input asp-for="Product.ReorderThreshold" class="form-control" />
+                <span asp-validation-for="Product.ReorderThreshold" class="text-danger small"></span>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Current Stock</label>
+                <input class="form-control" value="@Model.Product.CurrentStock @Model.Product.UnitOfMeasure" disabled />
+                <div class="form-text">Adjust via Stock In / Stock Out, not here.</div>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="Product.CostPrice" class="form-label"></label>
+                <div class="input-group">
+                    <span class="input-group-text">₹</span>
+                    <input asp-for="Product.CostPrice" class="form-control" />
+                </div>
+                <span asp-validation-for="Product.CostPrice" class="text-danger small"></span>
+            </div>
+            <div class="col-md-6">
+                <label asp-for="Product.SellingPrice" class="form-label"></label>
+                <div class="input-group">
+                    <span class="input-group-text">₹</span>
+                    <input asp-for="Product.SellingPrice" class="form-control" />
+                </div>
+                <span asp-validation-for="Product.SellingPrice" class="text-danger small"></span>
+            </div>
+
+            <div class="col-md-6 d-flex align-items-center">
+                <div class="form-check mt-3">
+                    <input asp-for="Product.IsActive" class="form-check-input" />
+                    <label asp-for="Product.IsActive" class="form-check-label"></label>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-4 d-flex gap-2">
+            <button type="submit" class="btn btn-inv-primary">Save Changes</button>
+            <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+}

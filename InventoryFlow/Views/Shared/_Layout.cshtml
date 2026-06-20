@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@(ViewData["Title"] != null ? ViewData["Title"] + " - InventoryFlow" : "InventoryFlow")</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+    <link href="~/css/site.css" rel="stylesheet" asp-append-version="true" />
+</head>
+<body>
+    <div class="inv-shell">
+        <nav class="inv-sidebar">
+            <div class="inv-brand">
+                <span class="badge-dot"></span>
+                InventoryFlow
+            </div>
+            <a class="inv-nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Dashboard" ? "active" : "")" asp-controller="Dashboard" asp-action="Index">
+                <i class="bi bi-speedometer2"></i> Dashboard
+            </a>
+            <a class="inv-nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Product" ? "active" : "")" asp-controller="Product" asp-action="Index">
+                <i class="bi bi-box-seam"></i> Products
+            </a>
+            <a class="inv-nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Supplier" ? "active" : "")" asp-controller="Supplier" asp-action="Index">
+                <i class="bi bi-truck"></i> Suppliers
+            </a>
+            <a class="inv-nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Stock" && ViewContext.RouteData.Values["action"]?.ToString() == "In" ? "active" : "")" asp-controller="Stock" asp-action="In">
+                <i class="bi bi-box-arrow-in-down"></i> Stock In
+            </a>
+            <a class="inv-nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "Stock" && ViewContext.RouteData.Values["action"]?.ToString() == "Out" ? "active" : "")" asp-controller="Stock" asp-action="Out">
+                <i class="bi bi-box-arrow-up"></i> Stock Out
+            </a>
+            <hr style="border-color: rgba(255,255,255,0.12); margin: 1rem 0.25rem;" />
+            <div class="px-2 text-uppercase" style="font-size:0.7rem; letter-spacing:0.06em; color:rgba(209,239,233,0.55); margin-bottom:0.35rem;">Portfolio Demo</div>
+            <div class="px-2" style="font-size:0.78rem; color:rgba(209,239,233,0.65);">Inventory &amp; Stock Management System</div>
+        </nav>
+
+        <div class="inv-main">
+            <div class="inv-topbar">
+                <h5 class="mb-0">@ViewData["Title"]</h5>
+                <span class="text-inv-muted" style="font-size:0.85rem;">@DateTime.Today.ToString("dddd, dd MMM yyyy")</span>
+            </div>
+
+            <div class="inv-content">
+                @if (TempData["Success"] != null)
+                {
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        <i class="bi bi-check-circle me-1"></i> @TempData["Success"]
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                }
+                @if (TempData["Error"] != null)
+                {
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <i class="bi bi-exclamation-triangle me-1"></i> @TempData["Error"]
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                }
+
+                @RenderBody()
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
