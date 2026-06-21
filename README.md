@@ -195,16 +195,8 @@ differentiation while still being clearly "your" component style.
 > audit-friendly approach to a problem nearly every physical-goods business
 > has.
 
-(132 words — trim/expand to taste.)
+
 
 ---
 
-## 9. Things to Call Out in an Interview
 
-- The single-ledger-table decision and why it beats two tables (Section 2)
-- Cached `CurrentStock` vs. live `SUM()` and the reconciliation escape hatch
-  (`RecalculateStockAsync`)
-- Negative-stock prevention enforced in the service layer *and* backstopped
-  by a DB check constraint (defense in depth)
-- Explicit DB transactions wrapping the "update Product + insert
-  StockTransaction" pair, so a failure can't leave stock and ledger out of sync
